@@ -7,7 +7,29 @@
 
   outputs = { self, nixpkgs, }:
     let
-      project = "project";
+      project = "project-name-here";
+      deps = pkgs: with pkgs;[
+        # Put dependencies here
+      ];
+      native-deps = pkgs: with pkgs;[
+        # Put native dependencies here
+      ];
+
+      system = "x86_64-linux";
+      systemPkgs = nixpkgs.legacyPackages.${system};
+      package = systemPkgs.rustPlatform.buildRustPackage {
+        pname = "${project}";
+        version = "0.1.0";
+        src = ./.;
+
+        buildInputs = deps;
+
+        nativeBuildInputs = native-deps;
+
+        cargoLock = {
+          lockFile = ./Cargo.lock;
+        };
+      };
       mod = { config, lib, pkgs, ... }:
         with lib;
         let
@@ -60,18 +82,16 @@
       nixosModules.${project} = mod;
       nixosModules.default = self.nixosModules.${project};
 
+      packages.${system}.default = package;
+
+      devShell = systemPkgs.mkShell {
+        buildInputs = deps ++ native-deps;
+      };
+
       overlays.default = (final: prev:
         with final;
         {
-          page-rs = pkgs.rustPlatform.buildRustPackage {
-            pname = "${project}";
-            version = "0.1.0";
-            src = ./.;
-
-            cargoLock = {
-              lockFile = ./Cargo.lock;
-            };
-          };
+          "${project}" = package;
         });
     };
 }
