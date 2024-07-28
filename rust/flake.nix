@@ -7,16 +7,20 @@
 
   outputs = { self, nixpkgs, }:
     let
+      system = "x86_64-linux";
+      systemPkgs = nixpkgs.legacyPackages.${system};
+
+
+      # Change below sections, leave the rest alone
       project = "project-name-here";
-      deps = pkgs: with pkgs;[
+      deps = with systemPkgs;[
         # Put dependencies here
       ];
-      native-deps = pkgs: with pkgs;[
+      native-deps = with systemPkgs;[
         # Put native dependencies here
       ];
 
-      system = "x86_64-linux";
-      systemPkgs = nixpkgs.legacyPackages.${system};
+
       package = systemPkgs.rustPlatform.buildRustPackage {
         pname = "${project}";
         version = "0.1.0";
