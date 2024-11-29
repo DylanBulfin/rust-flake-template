@@ -17,8 +17,8 @@
 
       ####################################################################################
       ## User Inputs:
-      project = "project-name-here";
-      version = "0.1.0";
+      cargoFile = ./Cargo.toml;
+      lockFile = ./Cargo.lock;
 
       # If you want to use a regular toolchain, set this to either: "stable", "beta",
       # "nightly"
@@ -59,10 +59,16 @@
           sha256 = toolchainSha256;
         };
 
-      package = (systemPkgs.makeRustPlatform {
+      rustPlatform = systemPkgs.makeRustPlatform {
         cargo = toolchain;
         rustc = toolchain;
-      }).buildRustPackage {
+      };
+
+      parsedToml = builtins.fromTOML (builtins.readFile cargoFile);
+      project = parsedToml.package.name;
+      version = parsedToml.package.version;
+
+      package = rustPlatform.buildRustPackage {
         pname = "${project}";
         version = "${version}";
         src = ./.;
