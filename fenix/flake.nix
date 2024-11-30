@@ -77,7 +77,7 @@
 
         nativeBuildInputs = native-deps;
 
-        cargoLock = { lockFile = ./Cargo.lock; };
+        cargoLock = { lockFile = lockFile; };
       };
       mod = { config, lib, pkgs, ... }:
         with lib;
